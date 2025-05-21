@@ -10,7 +10,7 @@ Original file is located at
 import streamlit as st
 import pandas as pd
 import numpy as np
-import pickle
+import joblib
 from sklearn.datasets import load_iris
 import matplotlib.pyplot as plt
 import seaborn as sns
