@@ -2,7 +2,6 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-import pickle
 import joblib
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -14,7 +13,7 @@ from sklearn.datasets import load_iris
 model = joblib.load('naive_bayes_model.pkl')  # Pastikan file ini tersedia
 iris = load_iris()
 
-# Buat DataFrame dari data iris
+# Buat DataFrame dan label target
 df = pd.DataFrame(iris.data, columns=iris.feature_names)
 df['target'] = iris.target
 target_names = iris.target_names
@@ -65,7 +64,7 @@ elif page == "Prediksi":
     if st.button("Prediksi"):
         input_data = np.array([[sepal_length, sepal_width, petal_length, petal_width]])
         prediction = model.predict(input_data)[0]
-        predicted_class = target_names[prediction]
+        predicted_class = target_names[int(prediction)]
         st.success(f"Prediksi: **{predicted_class}** 🌼")
 
 # ===============================
