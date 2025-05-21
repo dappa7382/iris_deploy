@@ -10,7 +10,7 @@ from sklearn.datasets import load_iris
 # ===============================
 # Load model and data
 # ===============================
-model = joblib.load('naive_bayes_model.pkl')  # Pastikan file ini tersedia
+model = joblib.load('naive_bayes_model(2).pkl')  # Pastikan file ini tersedia
 iris = load_iris()
 
 # Buat DataFrame dan label target
