@@ -62,10 +62,14 @@ elif page == "Prediksi":
     petal_width = st.slider("Petal Width (cm)", 0.1, 2.5, 1.2)
 
     if st.button("Prediksi"):
+    try:
         input_data = np.array([[sepal_length, sepal_width, petal_length, petal_width]])
         prediction = model.predict(input_data)[0]
         predicted_class = target_names[int(prediction)]
         st.success(f"Prediksi: **{predicted_class}** 🌼")
+    except Exception as e:
+        st.error(f"Gagal melakukan prediksi: {e}")
+
 
 # ===============================
 # Page 3: Visualisasi
