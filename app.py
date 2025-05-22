@@ -46,7 +46,7 @@ elif page == "Prediction":
     st.title("Iris Species Prediction")
     st.write("Enter the features below:")
 
-     sepal_length = st.slider("Sepal length (cm)", float(df['sepal_length'].min()), float(df['sepal_length'].max()), float(df['sepal_length'].mean()))
+    sepal_length = st.slider("Sepal length (cm)", float(df['sepal_length'].min()), float(df['sepal_length'].max()), float(df['sepal_length'].mean()))
     sepal_width = st.slider("Sepal width (cm)", float(df['sepal_width'].min()), float(df['sepal_width'].max()), float(df['sepal_width'].mean()))
     petal_length = st.slider("Petal length (cm)", float(df['petal_length'].min()), float(df['petal_length'].max()), float(df['petal_length'].mean()))
     petal_width = st.slider("Petal width (cm)", float(df['petal_width'].min()), float(df['petal_width'].max()), float(df['petal_width'].mean()))
