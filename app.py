@@ -45,8 +45,7 @@ elif page == "Prediction":
     petal_length = st.slider("Petal Length (cm)", float(iris_df["petal length (cm)"].min()), float(iris_df["petal length (cm)"].max()))
     petal_width = st.slider("Petal Width (cm)", float(iris_df["petal width (cm)"].min()), float(iris_df["petal width (cm)"].max()))
 
-    input_data = pd.DataFrame([[sepal_length, sepal_width, petal_length, petal_width]],
-                               columns=iris.feature_names)
+    input_data = [[sepal_length, sepal_width, petal_length, petal_width]]  # list of lists
 
     if st.button("Predict"):
         prediction = model.predict(input_data)[0]
