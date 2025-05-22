@@ -4,7 +4,7 @@ import pandas as pd
 from sklearn.datasets import load_iris
 
 # Load model
-model = joblib.load("/mnt/data/naive_bayes_model.pkl")
+model = joblib.load('naive_bayes_model.pkl')
 
 # Load iris dataset
 iris = load_iris()
