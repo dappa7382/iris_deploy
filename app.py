@@ -5,6 +5,12 @@ import joblib
 import seaborn as sns
 import matplotlib.pyplot as plt
 
+# Load dataset
+@st.cache_data
+def load_data():
+    url = "https://raw.githubusercontent.com/mwaskom/seaborn-data/master/iris.csv"
+    return pd.read_csv(url)
+
 # Load model
 @st.cache_resource
 def load_model():
