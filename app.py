@@ -1,85 +1,66 @@
-# -*- coding: utf-8 -*-
 import streamlit as st
-import pandas as pd
-import numpy as np
 import joblib
-import seaborn as sns
-import matplotlib.pyplot as plt
+import pandas as pd
 from sklearn.datasets import load_iris
 
-# ===============================
-# Load model and data
-# ===============================
-model = joblib.load('naive_bayes_model(2).pkl')  # Pastikan file ini tersedia
+# Load model
+model = joblib.load("/mnt/data/naive_bayes_model.pkl")
+
+# Load iris dataset
 iris = load_iris()
+iris_df = pd.DataFrame(iris.data, columns=iris.feature_names)
+iris_df['target'] = iris.target
+iris_df['species'] = iris_df['target'].apply(lambda x: iris.target_names[x])
 
-# Buat DataFrame dan label target
-df = pd.DataFrame(iris.data, columns=iris.feature_names)
-df['target'] = iris.target
-target_names = iris.target_names
+# Streamlit App
+st.set_page_config(page_title="Iris Classifier", layout="centered")
 
-# ===============================
-# Sidebar Navigation
-# ===============================
-st.sidebar.title("🌼 Iris Classifier App")
-page = st.sidebar.radio("Pilih Halaman", ["Deskripsi Data", "Prediksi", "Visualisasi"])
+# Sidebar navigation
+page = st.sidebar.selectbox("Choose a page", ["Data Description", "Prediction", "About the Model"])
 
-# ===============================
-# Page 1: Deskripsi Data
-# ===============================
-if page == "Deskripsi Data":
-    st.title("🔍 Deskripsi Dataset Iris")
-    st.markdown("""
-    Dataset Iris memiliki 150 data bunga dengan 4 fitur:
-    - Panjang sepal
-    - Lebar sepal
-    - Panjang petal
-    - Lebar petal
-    
-    Terdapat 3 jenis bunga:
-    - Setosa
-    - Versicolor
-    - Virginica
+if page == "Data Description":
+    st.title("Iris Dataset Description")
+    st.write("""
+        The **Iris dataset** is a classic dataset in machine learning and statistics. It contains 150 samples of iris flowers,
+        with 4 features each:
+        - Sepal length (cm)
+        - Sepal width (cm)
+        - Petal length (cm)
+        - Petal width (cm)
+
+        There are three classes of iris plants:
+        - Iris-setosa
+        - Iris-versicolor
+        - Iris-virginica
     """)
+    st.dataframe(iris_df.head(10))
+    st.bar_chart(iris_df['species'].value_counts())
 
-    st.subheader("Contoh Data")
-    st.dataframe(df.head())
+elif page == "Prediction":
+    st.title("Predict Iris Species")
+    st.write("Input the flower measurements below to predict the iris species.")
 
-    st.subheader("Statistik Ringkasan")
-    st.write(df.describe())
+    sepal_length = st.slider("Sepal Length (cm)", float(iris_df["sepal length (cm)"].min()), float(iris_df["sepal length (cm)"].max()))
+    sepal_width = st.slider("Sepal Width (cm)", float(iris_df["sepal width (cm)"].min()), float(iris_df["sepal width (cm)"].max()))
+    petal_length = st.slider("Petal Length (cm)", float(iris_df["petal length (cm)"].min()), float(iris_df["petal length (cm)"].max()))
+    petal_width = st.slider("Petal Width (cm)", float(iris_df["petal width (cm)"].min()), float(iris_df["petal width (cm)"].max()))
 
-# ===============================
-# Page 2: Prediksi
-# ===============================
-elif page == "Prediksi":
-    st.title("🌸 Prediksi Jenis Bunga Iris")
-    st.write("Masukkan panjang dan lebar sepal & petal bunga:")
+    input_data = pd.DataFrame([[sepal_length, sepal_width, petal_length, petal_width]],
+                               columns=iris.feature_names)
 
-    # Input pengguna
-    sepal_length = st.slider("Sepal Length (cm)", 4.0, 8.0, 5.8)
-    sepal_width = st.slider("Sepal Width (cm)", 2.0, 4.5, 3.0)
-    petal_length = st.slider("Petal Length (cm)", 1.0, 7.0, 4.0)
-    petal_width = st.slider("Petal Width (cm)", 0.1, 2.5, 1.2)
-
-    if st.button("Prediksi"):
-    try:
-        input_data = np.array([[sepal_length, sepal_width, petal_length, petal_width]])
+    if st.button("Predict"):
         prediction = model.predict(input_data)[0]
-        predicted_class = target_names[int(prediction)]
-        st.success(f"Prediksi: **{predicted_class}** 🌼")
-    except Exception as e:
-        st.error(f"Gagal melakukan prediksi: {e}")
+        st.success(f"The predicted iris species is: **{iris.target_names[prediction]}**")
 
+elif page == "About the Model":
+    st.title("About the Model")
+    st.write("""
+        This model uses **Naive Bayes classification** to predict the species of iris flowers.
 
-# ===============================
-# Page 3: Visualisasi
-# ===============================
-elif page == "Visualisasi":
-    st.title("📊 Visualisasi Dataset Iris")
+        - Naive Bayes is a probabilistic classifier based on Bayes' theorem.
+        - It assumes independence between features.
+        - It's efficient and performs well on small datasets like Iris.
 
-    st.subheader("Pairplot Berdasarkan Jenis")
-    df_plot = df.copy()
-    df_plot['species'] = df_plot['target'].apply(lambda x: target_names[x])
-    sns.set(style="whitegrid")
-    fig = sns.pairplot(df_plot, hue="species", diag_kind="kde")
-    st.pyplot(fig)
+        **Deployment:** This app is built with Streamlit, a fast way to build and share data apps in Python.
+    """)
+    st.image("https://upload.wikimedia.org/wikipedia/commons/4/41/Iris_dataset_scatterplot.svg", caption="Iris dataset visualization", use_column_width=True)
