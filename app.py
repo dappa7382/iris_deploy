@@ -1,65 +1,69 @@
 import streamlit as st
-import joblib
 import pandas as pd
-from sklearn.datasets import load_iris
+import numpy as np
+import joblib
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 # Load model
-model = joblib.load('naive_bayes_model_iris_nw.pkl')
+@st.cache_resource
+def load_model():
+    return joblib.load('naive_bayes_model_iris_dataset.pkl')
 
-# Load iris dataset
-iris = load_iris()
-iris_df = pd.DataFrame(iris.data, columns=iris.feature_names)
-iris_df['target'] = iris.target
-iris_df['species'] = iris_df['target'].apply(lambda x: iris.target_names[x])
+df = load_data()
+model = load_model()
 
-# Streamlit App
-st.set_page_config(page_title="Iris Classifier", layout="centered")
-
-# Sidebar navigation
-page = st.sidebar.selectbox("Choose a page", ["Data Description", "Prediction", "About the Model"])
+# Sidebar for page selection
+st.sidebar.title("Navigation")
+page = st.sidebar.radio("Go to", ["Data Description", "Prediction", "Visualization"])
 
 if page == "Data Description":
     st.title("Iris Dataset Description")
     st.write("""
-        The **Iris dataset** is a classic dataset in machine learning and statistics. It contains 150 samples of iris flowers,
-        with 4 features each:
-        - Sepal length (cm)
-        - Sepal width (cm)
-        - Petal length (cm)
-        - Petal width (cm)
-
-        There are three classes of iris plants:
-        - Iris-setosa
-        - Iris-versicolor
-        - Iris-virginica
+    The Iris dataset contains 150 samples of iris flowers from three different species (setosa, versicolor, virginica).
+    Each sample has four features:
+    - sepal length (cm)
+    - sepal width (cm)
+    - petal length (cm)
+    - petal width (cm)
     """)
-    st.dataframe(iris_df.head(10))
-    st.bar_chart(iris_df['species'].value_counts())
+    st.write("Here is a preview of the data:")
+    st.dataframe(df.head())
+
+    st.write("Summary statistics:")
+    st.write(df.describe())
+
+    st.write("Species distribution:")
+    st.bar_chart(df['species'].value_counts())
 
 elif page == "Prediction":
-    st.title("Predict Iris Species")
-    st.write("Input the flower measurements below to predict the iris species.")
+    st.title("Iris Species Prediction")
+    st.write("Enter the features below:")
 
-    sepal_length = st.slider("Sepal Length (cm)", float(iris_df["sepal length (cm)"].min()), float(iris_df["sepal length (cm)"].max()))
-    sepal_width = st.slider("Sepal Width (cm)", float(iris_df["sepal width (cm)"].min()), float(iris_df["sepal width (cm)"].max()))
-    petal_length = st.slider("Petal Length (cm)", float(iris_df["petal length (cm)"].min()), float(iris_df["petal length (cm)"].max()))
-    petal_width = st.slider("Petal Width (cm)", float(iris_df["petal width (cm)"].min()), float(iris_df["petal width (cm)"].max()))
-
-    input_data = [[sepal_length, sepal_width, petal_length, petal_width]]  # list of lists
+    sepal_length = st.number_input("Sepal length (cm)", float(df['sepal_length'].min()), float(df['sepal_length'].max()), float(df['sepal_length'].mean()))
+    sepal_width = st.number_input("Sepal width (cm)", float(df['sepal_width'].min()), float(df['sepal_width'].max()), float(df['sepal_width'].mean()))
+    petal_length = st.number_input("Petal length (cm)", float(df['petal_length'].min()), float(df['petal_length'].max()), float(df['petal_length'].mean()))
+    petal_width = st.number_input("Petal width (cm)", float(df['petal_width'].min()), float(df['petal_width'].max()), float(df['petal_width'].mean()))
 
     if st.button("Predict"):
-        prediction = model.predict(input_data)[0]
-        st.success(f"The predicted iris species is: **{iris.target_names[prediction]}**")
+        input_features = np.array([[sepal_length, sepal_width, petal_length, petal_width]])
+        prediction = model.predict(input_features)[0]
+        st.success(f"Predicted Iris Species: **{prediction.capitalize()}**")
 
-elif page == "About the Model":
-    st.title("About the Model")
-    st.write("""
-        This model uses **Naive Bayes classification** to predict the species of iris flowers.
+elif page == "Visualization":
+    st.title("Data Visualization")
 
-        - Naive Bayes is a probabilistic classifier based on Bayes' theorem.
-        - It assumes independence between features.
-        - It's efficient and performs well on small datasets like Iris.
+    st.write("Scatter plot of sepal length vs sepal width, colored by species:")
+    fig, ax = plt.subplots()
+    sns.scatterplot(data=df, x='sepal_length', y='sepal_width', hue='species', ax=ax)
+    st.pyplot(fig)
 
-        **Deployment:** This app is built with Streamlit, a fast way to build and share data apps in Python.
-    """)
-    st.image("https://upload.wikimedia.org/wikipedia/commons/4/41/Iris_dataset_scatterplot.svg", caption="Iris dataset visualization", use_column_width=True)
+    st.write("Boxplot of petal length by species:")
+    fig2, ax2 = plt.subplots()
+    sns.boxplot(x='species', y='petal_length', data=df, ax=ax2)
+    st.pyplot(fig2)
+
+    st.write("Pairplot of all features:")
+    st.write("Generating pairplot, please wait...")
+    pairplot_fig = sns.pairplot(df, hue='species')
+    st.pyplot(pairplot_fig.fig)
